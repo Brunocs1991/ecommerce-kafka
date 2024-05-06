@@ -8,10 +8,11 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Closeable;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
-public class KafkaDispatch {
+public class KafkaDispatch implements Closeable {
     private static final Logger logger = LoggerFactory.getLogger(KafkaDispatch.class);
 
     private final KafkaProducer<String, String> producer;
@@ -41,5 +42,10 @@ public class KafkaDispatch {
             }
             System.out.println(data.topic() + "::: " + data.partition() + "::: " + data.offset() + "/timestamp" + data.timestamp());
         };
+    }
+
+    @Override
+    public void close() {
+        this.producer.close();
     }
 }

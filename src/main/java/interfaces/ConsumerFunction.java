@@ -1,4 +1,4 @@
-package br.com.brunocs.ecommerce.service;
+package interfaces;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
