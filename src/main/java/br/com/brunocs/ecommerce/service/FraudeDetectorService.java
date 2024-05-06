@@ -1,9 +1,12 @@
 package br.com.brunocs.ecommerce.service;
 
 import br.com.brunocs.ecommerce.kafka.KafkaService;
+import br.com.brunocs.ecommerce.models.Order;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 public class FraudeDetectorService {
 
@@ -14,13 +17,16 @@ public class FraudeDetectorService {
         try (var service = new KafkaService(
                 FraudeDetectorService.class.getSimpleName(),
                 "ECOMMERCE_NEW_ORDER",
-                fraudeDetectorService::parse)) {
+                fraudeDetectorService::parse,
+                Order.class,
+                Map.of()
+        )) {
 
             service.run();
         }
     }
 
-    public void parse(ConsumerRecord<String, String> record) {
+    public void parse(ConsumerRecord<String, Order> record) {
         System.out.println("---------------------");
         System.out.println("Processing new order, checking for fraud");
         System.out.println(record.key());
