@@ -1,4 +1,4 @@
-package br.com.brunocs.ecommerce;
+package br.com.brunocs.ecommerce.service;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -10,7 +10,10 @@ import java.util.Properties;
 import java.util.regex.Pattern;
 
 public class LogService {
+
     public static void main(String[] args) {
+
+
         var consumer = new KafkaConsumer<String, String>(properties());
         consumer.subscribe(Pattern.compile("ECOMMERCE.*"));
 
