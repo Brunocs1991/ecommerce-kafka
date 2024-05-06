@@ -1,5 +1,6 @@
 package br.com.brunocs.ecommerce.service;
 
+import br.com.brunocs.ecommerce.kafka.KafkaService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
