@@ -4,6 +4,14 @@
     <groupId>br.com.brunocs</groupId>
     <artifactId>ecommerce</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <modules>
+        <module>service-email</module>
+        <module>service-fraud-detector</module>
+        <module>service-log</module>
+        <module>service-new-order</module>
+        <module>common-kafka</module>
+    </modules>
 
     <build>
         <plugins>
