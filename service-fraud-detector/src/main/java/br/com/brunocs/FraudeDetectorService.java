@@ -39,7 +39,7 @@ public class FraudeDetectorService {
         System.out.println(record.partition());
         System.out.println(record.offset());
         try {
-            Thread.sleep(1000);
+            Thread.sleep(500);
         } catch (InterruptedException e) {
             // ignoring
             logger.error(e.getMessage(), e);
@@ -47,10 +47,10 @@ public class FraudeDetectorService {
         var order = record.value();
         if(isFraud(order)) {
             System.out.println("Order is not valid - fraud detected");
-            orderDispatecher.send("ECOMMERCE_ORDER_REJECTED", order.getUserId(), order);
+            orderDispatecher.send("ECOMMERCE_ORDER_REJECTED", order.getEmail(), order);
         }else{
             System.out.println("Order is valid - no fraud detected");
-            orderDispatecher.send("ECOMMERCE_ORDER_APPROVED", order.getUserId(), order);
+            orderDispatecher.send("ECOMMERCE_ORDER_APPROVED", order.getEmail(), order);
         }
     }
 

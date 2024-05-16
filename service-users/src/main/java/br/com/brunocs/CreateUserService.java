@@ -9,6 +9,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.UUID;
 
 public class CreateUserService {
 
@@ -17,12 +18,14 @@ public class CreateUserService {
     public CreateUserService() throws SQLException {
         String url = "jdbc:sqlite:target/users_database.db";
         this.connection = java.sql.DriverManager.getConnection(url);
-        connection.createStatement().execute("CREATE TABLE Users (" +
-                "uuid VARCHAR(200) PRIMARY KEY, " +
-                "email VARCHAR(200)" +
-                ")");
-
-
+        try {
+            connection.createStatement().execute("CREATE TABLE Users (" +
+                    "uuid VARCHAR(200) PRIMARY KEY, " +
+                    "email VARCHAR(200)" +
+                    ")");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) throws SQLException {
@@ -51,7 +54,7 @@ public class CreateUserService {
 
     private void insertNewUser(String email) throws SQLException {
         var insert = connection.prepareStatement("INSERT INTO Users (uuid, email) VALUES (?, ?) ");
-        insert.setString(1, "uuid");
+        insert.setString(1, UUID.randomUUID().toString());
         insert.setString(2, email);
         insert.execute();
         System.out.println("User created: " + email);
