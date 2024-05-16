@@ -13,6 +13,7 @@
         <module>common-kafka</module>
         <module>service-users</module>
         <module>service-httpecommerce</module>
+        <module>service-reading-report</module>
     </modules>
 
     <build>
