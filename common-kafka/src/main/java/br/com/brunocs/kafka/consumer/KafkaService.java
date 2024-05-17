@@ -1,8 +1,9 @@
-package br.com.brunocs.kafka;
+package br.com.brunocs.kafka.consumer;
 
-import br.com.brunocs.interfaces.ConsumerFunction;
-import br.com.brunocs.serializer.GsonDeserializer;
-import br.com.brunocs.serializer.GsonSerializer;
+import br.com.brunocs.kafka.interfaces.ConsumerFunction;
+import br.com.brunocs.kafka.utils.Message;
+import br.com.brunocs.kafka.dispatcher.KafkaDispatch;
+import br.com.brunocs.kafka.dispatcher.GsonSerializer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;

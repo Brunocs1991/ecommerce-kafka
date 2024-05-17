@@ -1,6 +1,7 @@
-package br.com.brunocs.serializer;
+package br.com.brunocs.kafka.dispatcher;
 
-import br.com.brunocs.kafka.Message;
+import br.com.brunocs.kafka.utils.Message;
+import br.com.brunocs.kafka.utils.MessageAdapter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.kafka.common.serialization.Serializer;

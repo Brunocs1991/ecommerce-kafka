@@ -1,4 +1,4 @@
-package br.com.brunocs.kafka;
+package br.com.brunocs.kafka.utils;
 
 public class Message<T> {
 

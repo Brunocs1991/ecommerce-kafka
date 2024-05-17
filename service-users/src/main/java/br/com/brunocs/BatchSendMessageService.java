@@ -1,11 +1,10 @@
 package br.com.brunocs;
 
-import br.com.brunocs.kafka.CorrelationId;
-import br.com.brunocs.kafka.KafkaDispatch;
-import br.com.brunocs.kafka.KafkaService;
-import br.com.brunocs.kafka.Message;
+import br.com.brunocs.kafka.dispatcher.KafkaDispatch;
+import br.com.brunocs.kafka.consumer.KafkaService;
+import br.com.brunocs.kafka.utils.Message;
 import br.com.brunocs.model.User;
-import br.com.brunocs.serializer.GsonDeserializer;
+import br.com.brunocs.kafka.consumer.GsonDeserializer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
@@ -51,7 +50,7 @@ public class BatchSendMessageService {
         System.out.println("Processing new batch");
         System.out.println("Topic: " + message.getPayload());
 
-        if(true) throw new RuntimeException("Erro que eu forcei para testar o retry");
+//        if(true) throw new RuntimeException("Erro que eu forcei para testar o retry");
         for (User user : getAllUsers()) {
             userDispatch.sendAsync(
                     message.getPayload(),

@@ -1,10 +1,7 @@
-package br.com.brunocs.interfaces;
+package br.com.brunocs.kafka.interfaces;
 
-import br.com.brunocs.kafka.Message;
+import br.com.brunocs.kafka.utils.Message;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-
-import java.sql.SQLException;
-import java.util.concurrent.ExecutionException;
 
 public interface ConsumerFunction<T> {
     void consumer(ConsumerRecord<String, Message<T>> record) throws Exception;

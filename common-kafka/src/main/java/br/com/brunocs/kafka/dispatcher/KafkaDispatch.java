@@ -1,6 +1,7 @@
-package br.com.brunocs.kafka;
+package br.com.brunocs.kafka.dispatcher;
 
-import br.com.brunocs.serializer.GsonSerializer;
+import br.com.brunocs.kafka.utils.CorrelationId;
+import br.com.brunocs.kafka.utils.Message;
 import org.apache.kafka.clients.producer.*;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
@@ -40,7 +41,7 @@ public class KafkaDispatch<T> implements Closeable {
     }
 
     private Future<RecordMetadata> getRecordMetadataFuture(String topico, String key, CorrelationId correlationId, T payload) {
-        var value = new Message<>(correlationId, payload);
+        var value = new Message<>(correlationId.continueWith(String.format("_%s", topico)), payload);
         var record = new ProducerRecord<>(topico, key, value);
         return producer.send(record, getCallback());
     }

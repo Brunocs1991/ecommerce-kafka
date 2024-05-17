@@ -1,4 +1,4 @@
-package br.com.brunocs.kafka;
+package br.com.brunocs.kafka.utils;
 
 import java.util.UUID;
 

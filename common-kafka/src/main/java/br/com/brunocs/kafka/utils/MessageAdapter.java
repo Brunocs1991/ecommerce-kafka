@@ -1,7 +1,5 @@
-package br.com.brunocs.serializer;
+package br.com.brunocs.kafka.utils;
 
-import br.com.brunocs.kafka.CorrelationId;
-import br.com.brunocs.kafka.Message;
 import com.google.gson.*;
 
 import java.lang.reflect.Type;

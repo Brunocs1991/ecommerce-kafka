@@ -1,8 +1,8 @@
 package br.com.brunocs;
 
-import br.com.brunocs.kafka.KafkaDispatch;
-import br.com.brunocs.kafka.KafkaService;
-import br.com.brunocs.kafka.Message;
+import br.com.brunocs.kafka.dispatcher.KafkaDispatch;
+import br.com.brunocs.kafka.consumer.KafkaService;
+import br.com.brunocs.kafka.utils.Message;
 import br.com.brunocs.model.Order;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;

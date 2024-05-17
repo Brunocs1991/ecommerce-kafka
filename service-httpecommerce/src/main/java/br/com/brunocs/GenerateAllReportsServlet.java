@@ -1,7 +1,7 @@
 package br.com.brunocs;
 
-import br.com.brunocs.kafka.CorrelationId;
-import br.com.brunocs.kafka.KafkaDispatch;
+import br.com.brunocs.kafka.utils.CorrelationId;
+import br.com.brunocs.kafka.dispatcher.KafkaDispatch;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;

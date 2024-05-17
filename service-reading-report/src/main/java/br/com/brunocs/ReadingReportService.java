@@ -1,7 +1,7 @@
 package br.com.brunocs;
 
-import br.com.brunocs.kafka.KafkaService;
-import br.com.brunocs.kafka.Message;
+import br.com.brunocs.kafka.consumer.KafkaService;
+import br.com.brunocs.kafka.utils.Message;
 import br.com.brunocs.model.User;
 import br.com.brunocs.utils.IO;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
