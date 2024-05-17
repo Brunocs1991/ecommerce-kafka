@@ -1,6 +1,7 @@
 package br.com.brunocs;
 
 import br.com.brunocs.kafka.KafkaService;
+import br.com.brunocs.kafka.Message;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -16,7 +17,6 @@ public class LogService {
                 LogService.class.getSimpleName(),
                 Pattern.compile("ECOMMERCE.*"),
                 logService::parse,
-                String.class,
                 Map.of(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName())
         )) {
 
@@ -25,7 +25,7 @@ public class LogService {
 
     }
 
-    private void parse(ConsumerRecord<String, String> record) {
+    private void parse(ConsumerRecord<String, Message<String>> record) {
         System.out.println("-------------------------------------------");
         System.out.println("LOG: " + record.topic());
         System.out.println(record.key());

@@ -2,6 +2,7 @@ package br.com.brunocs;
 
 import br.com.brunocs.kafka.KafkaDispatch;
 import br.com.brunocs.kafka.KafkaService;
+import br.com.brunocs.kafka.Message;
 import br.com.brunocs.model.Order;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
@@ -22,7 +23,6 @@ public class FraudeDetectorService {
                 FraudeDetectorService.class.getSimpleName(),
                 "ECOMMERCE_NEW_ORDER",
                 fraudeDetectorService::parse,
-                Order.class,
                 Map.of()
         )) {
 
@@ -31,7 +31,7 @@ public class FraudeDetectorService {
     }
 
 
-    public void parse(ConsumerRecord<String, Order> record) throws ExecutionException, InterruptedException {
+    public void parse(ConsumerRecord<String, Message<Order>> record) throws ExecutionException, InterruptedException {
         System.out.println("---------------------");
         System.out.println("Processing new order, checking for fraud");
         System.out.println(record.key());
@@ -44,13 +44,23 @@ public class FraudeDetectorService {
             // ignoring
             logger.error(e.getMessage(), e);
         }
-        var order = record.value();
+        var order = record.value().getPayload();
         if(isFraud(order)) {
             System.out.println("Order is not valid - fraud detected");
-            orderDispatecher.send("ECOMMERCE_ORDER_REJECTED", order.getEmail(), order);
+            orderDispatecher.send(
+                    "ECOMMERCE_ORDER_REJECTED",
+                    order.getEmail(),
+                    record.value().getId().continueWith(FraudeDetectorService.class.getSimpleName()),
+                    order
+            );
         }else{
             System.out.println("Order is valid - no fraud detected");
-            orderDispatecher.send("ECOMMERCE_ORDER_APPROVED", order.getEmail(), order);
+            orderDispatecher.send(
+                    "ECOMMERCE_ORDER_APPROVED",
+                    order.getEmail(),
+                    record.value().getId().continueWith(FraudeDetectorService.class.getSimpleName()),
+                    order
+            );
         }
     }
 

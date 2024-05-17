@@ -16,7 +16,7 @@ import java.util.concurrent.ExecutionException;
 public class KafkaDispatch<T> implements Closeable {
     private static final Logger logger = LoggerFactory.getLogger(KafkaDispatch.class);
 
-    private final KafkaProducer<String, T> producer;
+    private final KafkaProducer<String, Message<T>> producer;
 
     public KafkaDispatch() {
         this.producer = new KafkaProducer<>(properties());
@@ -32,7 +32,8 @@ public class KafkaDispatch<T> implements Closeable {
         return properties;
     }
 
-    public void send(String topico, String key, T value) throws ExecutionException, InterruptedException {
+    public void send(String topico, String key, CorrelationId correlationId, T payload) throws ExecutionException, InterruptedException {
+        var value = new Message<>(correlationId, payload);
         var record = new ProducerRecord<>(topico, key, value);
         producer.send(record, getCallback()).get();
     }

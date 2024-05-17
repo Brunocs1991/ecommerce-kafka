@@ -1,5 +1,6 @@
 package br.com.brunocs;
 
+import br.com.brunocs.kafka.CorrelationId;
 import br.com.brunocs.kafka.KafkaDispatch;
 import br.com.brunocs.model.Email;
 import br.com.brunocs.model.Order;
@@ -20,11 +21,21 @@ public class NewOrderMain {
                         var amount = BigDecimal.valueOf(Math.random() * 5000 + 1);
 
                         var order = new Order(orderId, amount, email);
-                        orderDispatcher.send("ECOMMERCE_NEW_ORDER", email, order);
+                        orderDispatcher.send(
+                                "ECOMMERCE_NEW_ORDER",
+                                email,
+                                new CorrelationId(NewOrderMain.class.getSimpleName()),
+                                order
+                        );
 
                         var texto = "Thank you for your order! We are processing your order";
                         var emailCode = new Email("new order", texto);
-                        emailDispatcher.send("ECOMMERCE_SEND_EMAIL", email, emailCode);
+                        emailDispatcher.send(
+                                "ECOMMERCE_SEND_EMAIL",
+                                email,
+                                new CorrelationId(NewOrderMain.class.getSimpleName()),
+                                emailCode
+                        );
                     }
                 }
             }

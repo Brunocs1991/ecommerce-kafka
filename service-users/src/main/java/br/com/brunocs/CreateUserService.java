@@ -1,6 +1,7 @@
 package br.com.brunocs;
 
 import br.com.brunocs.kafka.KafkaService;
+import br.com.brunocs.kafka.Message;
 import br.com.brunocs.model.Order;
 import br.com.brunocs.serializer.GsonDeserializer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -34,18 +35,17 @@ public class CreateUserService {
                 CreateUserService.class.getSimpleName(),
                 "ECOMMERCE_NEW_ORDER",
                 createUserService::parse,
-                Order.class,
                 Map.of(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, GsonDeserializer.class.getName()))) {
 
             service.run();
         }
     }
 
-    public void parse(ConsumerRecord<String, Order> record) throws SQLException {
+    public void parse(ConsumerRecord<String, Message<Order>> record) throws SQLException {
+        var order = record.value().getPayload();
         System.out.println("---------------------");
         System.out.println("Processing new order, checking for new user");
         System.out.println(record.value());
-        var order = record.value();
         if (isNewUser(order.getEmail())) {
             insertNewUser(order.getEmail());
 

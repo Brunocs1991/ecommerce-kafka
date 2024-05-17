@@ -1,6 +1,7 @@
 package br.com.brunocs;
 
 import br.com.brunocs.kafka.KafkaService;
+import br.com.brunocs.kafka.Message;
 import br.com.brunocs.model.Email;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
@@ -18,7 +19,6 @@ public class EmailService {
                 EmailService.class.getSimpleName(),
                 "ECOMMERCE_SEND_EMAIL",
                 emailService::parse,
-                Email.class,
                 Map.of()
         )) {
 
@@ -26,7 +26,7 @@ public class EmailService {
         }
     }
 
-    private void parse(ConsumerRecord<String, Email> record) {
+    private void parse(ConsumerRecord<String, Message<Email>> record) {
         System.out.println("---------------------");
         System.out.println("sending email");
         System.out.println(record.key());

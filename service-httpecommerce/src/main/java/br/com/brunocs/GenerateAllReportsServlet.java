@@ -1,5 +1,6 @@
 package br.com.brunocs;
 
+import br.com.brunocs.kafka.CorrelationId;
 import br.com.brunocs.kafka.KafkaDispatch;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -24,7 +25,11 @@ public class GenerateAllReportsServlet extends HttpServlet {
 
 
         try {
-            batchDispatch.send("SEND_MESSAGE_TO_ALL_USERS", "USER_GENERATE_READING_REPORTER", "USER_GENERATE_READING_REPORTER");
+            batchDispatch.send(
+                    "ECOMMERCE_SEND_MESSAGE_TO_ALL_USERS",
+                    "ECOMMERCE_USER_GENERATE_READING_REPORTER",
+                    new CorrelationId(GenerateAllReportsServlet.class.getSimpleName()),
+                    "ECOMMERCE_USER_GENERATE_READING_REPORTER");
 
             System.out.println("Sent generate reports to all Users");
             resp.setStatus(HttpServletResponse.SC_OK);

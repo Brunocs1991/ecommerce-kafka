@@ -1,7 +1,9 @@
 package br.com.brunocs;
 
+import br.com.brunocs.kafka.CorrelationId;
 import br.com.brunocs.kafka.KafkaDispatch;
 import br.com.brunocs.kafka.KafkaService;
+import br.com.brunocs.kafka.Message;
 import br.com.brunocs.model.User;
 import br.com.brunocs.serializer.GsonDeserializer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -35,22 +37,25 @@ public class BatchSendMessageService {
         var batchService = new BatchSendMessageService();
         try (var service = new KafkaService(
                 BatchSendMessageService.class.getSimpleName(),
-                "SEND_MESSAGE_TO_ALL_USERS",
+                "ECOMMERCE_SEND_MESSAGE_TO_ALL_USERS",
                 batchService::parse,
-                String.class,
                 Map.of(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, GsonDeserializer.class.getName()))) {
 
             service.run();
         }
     }
 
-    public void parse(ConsumerRecord<String, String> record) throws ExecutionException, InterruptedException, SQLException {
+    public void parse(ConsumerRecord<String, Message<String>> record) throws ExecutionException, InterruptedException, SQLException {
+        var message = record.value();
         System.out.println("---------------------");
         System.out.println("Processing new batch");
-        System.out.println("Topic: " + record.value());
-
+        System.out.println("Topic: " + message.getPayload());
         for (User user : getAllUsers()) {
-            userDispatch.send(record.value(), user.getUuid(), user);
+            userDispatch.send(
+                    message.getPayload(),
+                    user.getUuid(),
+                    message.getId().continueWith(BatchSendMessageService.class.getSimpleName()),
+                    user);
         }
     }
 
