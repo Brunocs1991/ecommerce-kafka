@@ -12,7 +12,7 @@ public class NewOrderMain {
 
     public static void main(String[] args) throws ExecutionException, InterruptedException {
         try (var orderDispatcher = new KafkaDispatch<Order>()) {
-            for (int i = 0; i < 100; i++) {
+            for (int i = 0; i < 1000; i++) {
                 var email = Math.random() + "@email.com";
                 for (int j = 0; j < 10; j++) {
                     var orderId = UUID.randomUUID().toString();

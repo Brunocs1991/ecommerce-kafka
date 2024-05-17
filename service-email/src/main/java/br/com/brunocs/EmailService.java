@@ -1,33 +1,30 @@
 package br.com.brunocs;
 
-import br.com.brunocs.kafka.consumer.KafkaService;
+import br.com.brunocs.kafka.consumer.ConsumerService;
+import br.com.brunocs.kafka.consumer.ServiceRunner;
 import br.com.brunocs.kafka.utils.Message;
 import br.com.brunocs.model.Email;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-
-public class EmailService {
+public class EmailService implements ConsumerService<Email> {
 
     private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
-    public static void main(String[] args) throws ExecutionException, InterruptedException {
-        var emailService = new EmailService();
-        try (var service = new KafkaService(
-                EmailService.class.getSimpleName(),
-                "ECOMMERCE_SEND_EMAIL",
-                emailService::parse,
-                Map.of()
-        )) {
-
-            service.run();
-        }
+    public static void main(String[] args) {
+        new ServiceRunner<>(EmailService::new).start(5);
     }
 
-    private void parse(ConsumerRecord<String, Message<Email>> record) {
+    public String getConsumerGroup() {
+        return EmailService.class.getSimpleName();
+    }
+
+    public String getTopic() {
+        return "ECOMMERCE_SEND_EMAIL";
+    }
+
+    public void parse(ConsumerRecord<String, Message<Email>> record) {
         System.out.println("---------------------");
         System.out.println("sending email");
         System.out.println(record.key());
@@ -40,7 +37,5 @@ public class EmailService {
             logger.error(e.getMessage(), e);
         }
         System.out.println("Email Send");
-
-
     }
 }
