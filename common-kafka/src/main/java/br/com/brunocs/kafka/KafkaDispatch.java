@@ -1,10 +1,7 @@
 package br.com.brunocs.kafka;
 
 import br.com.brunocs.serializer.GsonSerializer;
-import org.apache.kafka.clients.producer.Callback;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.*;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import java.io.Closeable;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 public class KafkaDispatch<T> implements Closeable {
     private static final Logger logger = LoggerFactory.getLogger(KafkaDispatch.class);
@@ -32,10 +30,19 @@ public class KafkaDispatch<T> implements Closeable {
         return properties;
     }
 
+    public void sendAsync(String topico, String key, CorrelationId correlationId, T payload) {
+        getRecordMetadataFuture(topico, key, correlationId, payload);
+    }
+
     public void send(String topico, String key, CorrelationId correlationId, T payload) throws ExecutionException, InterruptedException {
+        var future = getRecordMetadataFuture(topico, key, correlationId, payload);
+        future.get();
+    }
+
+    private Future<RecordMetadata> getRecordMetadataFuture(String topico, String key, CorrelationId correlationId, T payload) {
         var value = new Message<>(correlationId, payload);
         var record = new ProducerRecord<>(topico, key, value);
-        producer.send(record, getCallback()).get();
+        return producer.send(record, getCallback());
     }
 
     private static Callback getCallback() {

@@ -17,7 +17,7 @@ public class FraudeDetectorService {
     private static final Logger logger = LoggerFactory.getLogger(FraudeDetectorService.class);
     private final KafkaDispatch<Order> orderDispatecher = new KafkaDispatch();
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
         var fraudeDetectorService = new FraudeDetectorService();
         try (var service = new KafkaService(
                 FraudeDetectorService.class.getSimpleName(),

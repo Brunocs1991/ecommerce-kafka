@@ -1,7 +1,8 @@
 package br.com.brunocs.kafka;
 
-import br.com.brunocs.serializer.GsonDeserializer;
 import br.com.brunocs.interfaces.ConsumerFunction;
+import br.com.brunocs.serializer.GsonDeserializer;
+import br.com.brunocs.serializer.GsonSerializer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -20,38 +21,48 @@ public class KafkaService<T> implements Closeable {
     private final KafkaConsumer<String, Message<T>> consumer;
     private final ConsumerFunction<T> parse;
 
-    public KafkaService(String groupId, String topic, ConsumerFunction<T> parse,  Map<String, String> properties) {
-        this(parse, groupId,  properties);
+    public KafkaService(String groupId, String topic, ConsumerFunction<T> parse, Map<String, String> properties) {
+        this(parse, groupId, properties);
         consumer.subscribe(Collections.singleton(topic));
     }
 
-    public KafkaService(String groupId, Pattern topic, ConsumerFunction<T> parse,  Map<String, String> properties) {
-        this(parse, groupId,  properties);
+    public KafkaService(String groupId, Pattern topic, ConsumerFunction<T> parse, Map<String, String> properties) {
+        this(parse, groupId, properties);
         consumer.subscribe(topic);
     }
 
-    private KafkaService(ConsumerFunction<T> parse, String groupId,  Map<String, String> properties) {
+    private KafkaService(ConsumerFunction<T> parse, String groupId, Map<String, String> properties) {
         this.parse = parse;
-        this.consumer = new KafkaConsumer<>(properties(groupId,  properties));
+        this.consumer = new KafkaConsumer<>(properties(groupId, properties));
     }
 
-    public void run() {
-        while (true) {
-            var records = consumer.poll(Duration.ofMillis(100));
-            if (!records.isEmpty()) {
-                System.out.println("Encontrei " + records.count() + " registros");
-                for (var record : records) {
-                    try {
-                        parse.consumer(record);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+    public void run() throws ExecutionException, InterruptedException {
+        try (var deadLetter = new KafkaDispatch<>()) {
+            while (true) {
+                var records = consumer.poll(Duration.ofMillis(100));
+                if (!records.isEmpty()) {
+                    System.out.println("Encontrei " + records.count() + " registros");
+                    for (var record : records) {
+                        try {
+                            parse.consumer(record);
+                        } catch (Exception e) {
+
+                            var message = record.value();
+                            deadLetter.send(
+                                    "ECOMMERCE_DEADLETTER",
+                                    message.getId().toString(),
+                                    message.getId().continueWith("DeadLetter"),
+                                    new GsonSerializer().serialize("", message)
+                            );
+                                 e.printStackTrace();
+                        }
                     }
                 }
             }
         }
     }
 
-    private Properties properties(String groupId,  Map<String, String> overrideProperties) {
+    private Properties properties(String groupId, Map<String, String> overrideProperties) {
         var properties = new Properties();
         properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
         properties.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
