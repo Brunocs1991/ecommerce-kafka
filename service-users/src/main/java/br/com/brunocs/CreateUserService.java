@@ -1,47 +1,33 @@
 package br.com.brunocs;
 
-import br.com.brunocs.kafka.consumer.KafkaService;
+import br.com.brunocs.database.LocalDatabase;
+import br.com.brunocs.kafka.consumer.ConsumerService;
+import br.com.brunocs.kafka.consumer.ServiceRunner;
 import br.com.brunocs.kafka.utils.Message;
 import br.com.brunocs.model.Order;
-import br.com.brunocs.kafka.consumer.GsonDeserializer;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
-import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 
-public class CreateUserService {
-
-    private final Connection connection;
+public class CreateUserService implements ConsumerService<Order> {
+    private final LocalDatabase database;
 
     public CreateUserService() throws SQLException {
-        String url = "jdbc:sqlite:target/users_database.db";
-        this.connection = java.sql.DriverManager.getConnection(url);
-        try {
-            connection.createStatement().execute("CREATE TABLE Users (" +
-                    "uuid VARCHAR(200) PRIMARY KEY, " +
-                    "email VARCHAR(200)" +
-                    ")");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        this.database = new LocalDatabase("users_database");
+        this.database.createIfNotExists("CREATE TABLE Users (" +
+                "uuid VARCHAR(200) PRIMARY KEY, " +
+                "email VARCHAR(200)" +
+                ")");
     }
 
-    public static void main(String[] args) throws SQLException, ExecutionException, InterruptedException {
-        var createUserService = new CreateUserService();
-        try (var service = new KafkaService(
-                CreateUserService.class.getSimpleName(),
-                "ECOMMERCE_NEW_ORDER",
-                createUserService::parse,
-                Map.of(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, GsonDeserializer.class.getName()))) {
+    public static void main(String[] args) {
 
-            service.run();
-        }
+        new ServiceRunner<>(CreateUserService::new).start(1);
+
     }
 
+    @Override
     public void parse(ConsumerRecord<String, Message<Order>> record) throws SQLException {
         var order = record.value().getPayload();
         System.out.println("---------------------");
@@ -53,19 +39,26 @@ public class CreateUserService {
         }
     }
 
+    @Override
+    public String getTopic() {
+        return "ECOMMERCE_NEW_ORDER";
+    }
+
+    @Override
+    public String getConsumerGroup() {
+        return CreateUserService.class.getSimpleName();
+    }
+
     private void insertNewUser(String email) throws SQLException {
-        var insert = connection.prepareStatement("INSERT INTO Users (uuid, email) VALUES (?, ?) ");
-        insert.setString(1, UUID.randomUUID().toString());
-        insert.setString(2, email);
-        insert.execute();
+
+        database.update("INSERT INTO Users (uuid, email) VALUES (?, ?) ",  UUID.randomUUID().toString(), email);
         System.out.println("User created: " + email);
 
     }
 
     private boolean isNewUser(String email) throws SQLException {
-        var exists = connection.prepareStatement("SELECT uuid FROM Users WHERE email = ? limit 1 ");
-        exists.setString(1, email);
-        var results = exists.executeQuery();
+        var results = database.query("SELECT uuid FROM Users WHERE email = ? limit 1 ", email);
+
         return !results.next();
     }
 
